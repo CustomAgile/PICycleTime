@@ -1,6 +1,6 @@
 # PI Cycle Time Chart
 
-[![Build Status](https://travis-ci.org/krmorse/PICycleTime.png?branch=master)](https://travis-ci.org/krmorse/PICycleTime)
+[![Build Status](https://travis-ci.org/RallyCommunity/PICycleTime.png?branch=master)](https://travis-ci.org/RallyCommunity/PICycleTime)
 
 This app plots the cycle time of portfolio items.  This metric is calculated as the difference between the ActualEndDate and ActualStartDate rollup fields for each included portfolio item.  The median cycle times are plotted as columns with whiskers included for the 25th and 75th percentiles.
 

@@ -70,6 +70,20 @@ describe('PICycleTimeChartApp', function() {
         });
     });
 
+    pit('should not include a timeboxscope if bucketing by release', function() {
+        var release = Rally.test.Mock.dataFactory.getRecord('release');
+        var timeboxScope = Ext.create('Rally.app.TimeboxScope', { record: release });
+        var appContext = Rally.test.Harness.getAppContext({
+            timebox: timeboxScope
+        });
+        return renderChart({ context: appContext, settings: { query: '(Name = "Foo")', bucketBy: 'release' } }).then(function(chart) {
+            var filters = gridboard.storeConfig.filters;
+            expect(filters.length).toBe(3);
+            expect(filters[1]).toEqual({ property: 'Release', operator: '!=', value: null });
+            expect(filters[2].toString()).toBe('(Name = "Foo")');
+        });
+    });
+
     pit('should refresh when the timebox changes', function() {
         var release1 = Rally.test.Mock.dataFactory.getRecord('release'),
             release2 = Rally.test.Mock.dataFactory.getRecord('release'),

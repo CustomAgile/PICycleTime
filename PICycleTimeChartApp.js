@@ -217,11 +217,15 @@ Ext.define('PICycleTimeChartApp', {
     },
 
     _getChartSort: function() {
-        if (this.getSetting('bucketBy') === 'release') {
+        if (this._isByRelease()) {
             return [{ property: 'Release.ReleaseDate', direction: 'ASC' }];
         } else {
             return [{ property: 'ActualEndDate', direction: 'ASC' }];
         }
+    },
+
+    _isByRelease: function() {
+        return this.getSetting('bucketBy') === 'release';
     },
 
     _getFilters: function() {
@@ -231,16 +235,16 @@ Ext.define('PICycleTimeChartApp', {
             value: null
         }];
 
-        if (this.getSetting('bucketBy') === 'release') {
+        if (this._isByRelease()) {
             queries.push({
                 property: 'Release',
                 operator: '!=',
-                vaue: null
+                value: null
             });
         }
 
         var timeboxScope = this.getContext().getTimeboxScope();
-        if (timeboxScope && timeboxScope.isApplicable(this.model)) {
+        if (timeboxScope && timeboxScope.isApplicable(this.model) && !this._isByRelease()) {
             queries.push(timeboxScope.getQueryFilter());
         }
         if (this.getSetting('query')) {

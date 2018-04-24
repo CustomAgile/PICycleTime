@@ -16,6 +16,7 @@ describe('PICycleTimeChartApp', function() {
         var features = Rally.test.Mock.dataFactory.getData('portfolioitem/feature', { count: 10 });
         query = Rally.test.Mock.ajax.whenQuerying('portfolioitem/feature').respondWith(features);
         Rally.test.Mock.ajax.whenQuerying('portfolioitem/initiative').respondWith([]);
+        Rally.test.Mock.ajax.whenQuerying('typedefinition').respondWith([{ TypePath: 'portfolioitem/feature'}]);
     });
 
     pit('should configure the calculator', function() {

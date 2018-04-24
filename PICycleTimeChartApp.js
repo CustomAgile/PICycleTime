@@ -12,14 +12,35 @@ Ext.define('PICycleTimeChartApp', {
     config: {
         defaultSettings: {
             bucketBy: 'quarter',
-            piType: 'portfolioitem/feature',
+            piType: '',
             query: ''
         }
     },
 
     launch: function() {
+        if (this.getSetting('piType')) {
+            this._loadPIModel(this.getSetting('piType'));
+        } else {
+            Ext.create('Rally.data.wsapi.Store', {
+                model: 'TypeDefinition',
+                sorters: [{ property: 'Ordinal' }],
+                fetch: ['DisplayName', 'TypePath'],
+                filters: [
+                    { property: 'Parent.Name', value: 'Portfolio Item' },
+                    { property: 'Creatable', value: true }
+                ]
+            }).load().then({
+                success: function(records) {
+                    this._loadPIModel(records[0].get('TypePath'));
+                },
+                scope: this
+            });
+        }
+    },
+
+    _loadPIModel: function(piType) {
         Rally.data.wsapi.ModelFactory.getModel({
-            type: this.getSetting('piType'),
+            type: piType,
         }).then({
             success: function(model) {
                 this.model = model;
@@ -27,7 +48,7 @@ Ext.define('PICycleTimeChartApp', {
             },
             failure: function() {
                 Rally.ui.notify.Notifier.showError({ message: 'Unable to load model type "' + 
-                    this.getSetting('piType') + '". Please verify the settings are configured correctly.' });
+                    piType + '". Please verify the settings are configured correctly.' });
             },
             scope: this
         });

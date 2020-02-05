@@ -17,7 +17,7 @@ Ext.define('PICycleTimeChartApp', {
         }
     },
 
-    launch: function() {
+    launch: function () {
         if (this.getSetting('piType')) {
             this._loadPIModel(this.getSetting('piType'));
         } else {
@@ -30,7 +30,7 @@ Ext.define('PICycleTimeChartApp', {
                     { property: 'Creatable', value: true }
                 ]
             }).load().then({
-                success: function(records) {
+                success: function (records) {
                     this._loadPIModel(records[0].get('TypePath'));
                 },
                 scope: this
@@ -38,23 +38,25 @@ Ext.define('PICycleTimeChartApp', {
         }
     },
 
-    _loadPIModel: function(piType) {
+    _loadPIModel: function (piType) {
         Rally.data.wsapi.ModelFactory.getModel({
             type: piType,
         }).then({
-            success: function(model) {
+            success: function (model) {
                 this.model = model;
                 this._addChart();
             },
-            failure: function() {
-                Rally.ui.notify.Notifier.showError({ message: 'Unable to load model type "' + 
-                    piType + '". Please verify the settings are configured correctly.' });
+            failure: function () {
+                Rally.ui.notify.Notifier.showError({
+                    message: 'Unable to load model type "' +
+                        piType + '". Please verify the settings are configured correctly.'
+                });
             },
             scope: this
         });
     },
 
-    getSettingsFields: function() {
+    getSettingsFields: function () {
         return [
             {
                 name: 'piType',
@@ -65,7 +67,7 @@ Ext.define('PICycleTimeChartApp', {
                 autoSelect: false,
                 validateOnChange: false,
                 validateOnBlur: false,
-                fieldLabel: 'Type', 
+                fieldLabel: 'Type',
                 shouldRespondToScopeChange: true,
                 storeConfig: {
                     model: 'TypeDefinition',
@@ -86,7 +88,7 @@ Ext.define('PICycleTimeChartApp', {
                         combo.fireEvent('typeselected', combo.getValue(), combo.context);
                     },
                     ready: function (combo) {
-                      combo.fireEvent('typeselected', combo.getValue(), combo.context);
+                        combo.fireEvent('typeselected', combo.getValue(), combo.context);
                     }
                 },
                 bubbleEvents: ['typeselected'],
@@ -118,10 +120,10 @@ Ext.define('PICycleTimeChartApp', {
                 lastQuery: '',
                 handlesEvents: {
                     typeselected: function (type) {
-                         Rally.data.ModelFactory.getModel({
+                        Rally.data.ModelFactory.getModel({
                             type: type,
-                            success: function(model) {
-                                this.store.filterBy(function(record) {
+                            success: function (model) {
+                                this.store.filterBy(function (record) {
                                     return record.get('value') !== 'release' ||
                                         model.typeDefinition.Ordinal === 0;
                                 });
@@ -140,16 +142,16 @@ Ext.define('PICycleTimeChartApp', {
         ];
     },
 
-    _addChart: function() {
+    _addChart: function () {
         var context = this.getContext(),
-            whiteListFields = ['Milestones', 'Tags'],
+            whiteListFields = ['Milestones', 'Tags', 'c_EnterpriseApprovalEA'],
             modelNames = [this.model.typePath],
             gridBoardConfig = {
                 xtype: 'rallygridboard',
                 toggleState: 'chart',
                 chartConfig: this._getChartConfig(),
                 plugins: [{
-                    ptype:'rallygridboardinlinefiltercontrol',
+                    ptype: 'rallygridboardinlinefiltercontrol',
                     showInChartMode: true,
                     inlineFilterButtonConfig: {
                         stateful: true,
@@ -160,16 +162,16 @@ Ext.define('PICycleTimeChartApp', {
                             quickFilterPanelConfig: {
                                 defaultFields: [],
                                 addQuickFilterConfig: {
-                                   whiteListFields: whiteListFields
+                                    whiteListFields: whiteListFields
                                 }
                             },
                             advancedFilterPanelConfig: {
-                               advancedFilterRowsConfig: {
-                                   propertyFieldConfig: {
-                                       whiteListFields: whiteListFields
-                                   }
-                               }
-                           }
+                                advancedFilterRowsConfig: {
+                                    propertyFieldConfig: {
+                                        whiteListFields: whiteListFields
+                                    }
+                                }
+                            }
                         }
                     }
                 }],
@@ -177,13 +179,19 @@ Ext.define('PICycleTimeChartApp', {
                 modelNames: modelNames,
                 storeConfig: {
                     filters: this._getFilters()
+                },
+                listeners: {
+                    scope: this,
+                    afterrender: function () {
+                        this.addExportButton();
+                    }
                 }
             };
 
         this.add(gridBoardConfig);
     },
 
-    _getChartConfig: function() {
+    _getChartConfig: function () {
         return {
             xtype: 'rallychart',
             chartColors: ['#937bb7'],
@@ -223,7 +231,7 @@ Ext.define('PICycleTimeChartApp', {
         };
     },
 
-    onTimeboxScopeChange: function() {
+    onTimeboxScopeChange: function () {
         this.callParent(arguments);
 
         var gridBoard = this.down('rallygridboard');
@@ -233,11 +241,11 @@ Ext.define('PICycleTimeChartApp', {
         this._addChart();
     },
 
-    _getChartFetch: function() {
+    _getChartFetch: function () {
         return ['ActualStartDate', 'ActualEndDate', 'Release'];
     },
 
-    _getChartSort: function() {
+    _getChartSort: function () {
         if (this._isByRelease()) {
             return [{ property: 'Release.ReleaseDate', direction: 'ASC' }];
         } else {
@@ -245,11 +253,11 @@ Ext.define('PICycleTimeChartApp', {
         }
     },
 
-    _isByRelease: function() {
+    _isByRelease: function () {
         return this.getSetting('bucketBy') === 'release';
     },
 
-    _getFilters: function() {
+    _getFilters: function () {
         var queries = [{
             property: 'ActualEndDate',
             operator: '!=',
@@ -272,5 +280,56 @@ Ext.define('PICycleTimeChartApp', {
             queries.push(Rally.data.QueryFilter.fromQueryString(this.getSetting('query')));
         }
         return queries;
-    }
+    },
+
+    addExportButton: function () {
+        let ct = this.down('rallyleftright');
+        if (ct && ct.getRight()) {
+            ct.getRight().add({
+                xtype: 'rallybutton',
+                iconCls: 'icon-export',
+                cls: 'rly-small secondary',
+                handler: this._export,
+                margin: '0 20 7 0',
+                scope: this,
+                toolTipText: 'Export...'
+            });
+        }
+    },
+
+    _export: function () {
+        var chart = this.down('rallychart');
+        if (!chart) {
+            Rally.ui.notify.Notifier.showError({ message: "No chart data to export." });
+            return;
+        }
+
+        var data = chart && chart.getChartData();
+        if (!data) {
+            Rally.ui.notify.Notifier.showError({ message: "No chart data to export." });
+            return;
+        }
+
+        var csv = [];
+        var bucket = this.getSetting('bucketBy');
+        var workitems = _.pluck(data.series, 'name');
+        var headers = [bucket].concat(workitems);
+
+        csv.push(headers.join(','));
+        for (var i = 0; i < data.categories.length; i++) {
+            row = [data.categories[i]];
+            row.push(data.series[0].data[i][1]);
+            if (data.series[1].data[i].length) {
+                row.push(`${data.series[1].data[i][0]} - ${data.series[1].data[i][1]}`);
+            }
+            else {
+                row.push('N/A');
+            }
+            csv.push(row.join(','));
+        }
+
+        csv = csv.join('\r\n');
+        var fileName = `cycle-time-${Rally.util.DateTime.format(new Date(), 'Y-m-d-h-i-s')}.csv`;
+        CATS.workitemThroughput.utils.Toolbox.saveAs(csv, fileName);
+    },
 });

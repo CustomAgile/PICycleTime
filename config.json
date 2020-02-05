@@ -5,9 +5,11 @@
     "sdk": "2.1",
     "javascript": [
         "CycleTimeCalculator.js",
-        "PICycleTimeChartApp.js"
+        "PICycleTimeChartApp.js",
+        "save-file-toolbox.js"
     ],
     "css": [
         "app.css"
-    ]
+    ],
+    "templates": "./templates"
 }

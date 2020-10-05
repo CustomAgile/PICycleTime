@@ -4,11 +4,13 @@
     "server": "https://rally1.rallydev.com",
     "sdk": "2.1",
     "javascript": [
+        "node_modules/@customagile/ancestor-pi-multi-level-pi-app-filter/index.js",
         "CycleTimeCalculator.js",
         "PICycleTimeChartApp.js",
         "save-file-toolbox.js"
     ],
     "css": [
+        "node_modules/@customagile/ancestor-pi-multi-level-pi-app-filter/index.css",
         "app.css"
     ],
     "templates": "./templates"
